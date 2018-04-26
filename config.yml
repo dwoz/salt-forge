@@ -1,0 +1,9 @@
+---
+envs_dir: envs
+environments:
+  - name: foo
+    python: python3.5
+    branch: 2018.3
+    origin: git@github.com:dwoz/salt.git
+    remotes:
+      saltstack: git@github.com:saltstack/salt.git
