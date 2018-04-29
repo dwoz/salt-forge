@@ -58,7 +58,7 @@ def main(config='config.yml'):
 
     os.chdir(os.path.join(env_dir, 'salt'))
 
-    for key, val in conf['git_config']:
+    for key, val in conf['git_config'].items():
         cmd = 'git config --local {} \'{}\''.format(key, val)
         ret = subprocess.call(cmd, shell=True)
         if ret != 0:
@@ -82,7 +82,7 @@ def main(config='config.yml'):
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
         with open(full_path, 'w') as fp:
-            yaml.dump(conf['config_files'][path], fp)
+            yaml.dump(conf['config_files'][path], fp, default_flow_style=False)
 
 
 if __name__ == '__main__':
