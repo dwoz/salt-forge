@@ -1,16 +1,17 @@
 ---
-python: python3.5
-depth: 1
-branch: 2018.3
-origin: git@github.com:dwoz/salt.git
-remotes:
-  saltstack: git@github.com:saltstack/salt.git
-git_config:
-  user.email: dwozniak@saltstack.com
-  user.name: Daniel A. Wozniak
-  gpg.program: gpg
-  commit.signgpg: true
-config_files:
+python: python3
+git:
+  depth: 1
+  branch: 2018.3
+  origin: git@github.com:dwoz/salt.git
+  remotes:
+    saltstack: git@github.com:saltstack/salt.git
+  config:
+    user.email: dwozniak@saltstack.com
+    user.name: Daniel A. Wozniak
+    gpg.program: gpg
+    commit.signgpg: true
+files:
   SaltFile:
     salt-master:
       config_dir: etc/salt

@@ -25,6 +25,11 @@ def repo_name(url):
     return name_with_git.rsplit('.', 1)[0]
 
 
+def run(cmd):
+    ret = subprocess.call(cmd, shell=True)
+    if ret != 0:
+        raise Exception("Bad return code from git config")
+
 def main(config='config.yml'):
     ns = parser.parse_args()
     orig_path = os.getcwd()
@@ -49,22 +54,18 @@ def main(config='config.yml'):
     os.chdir(env_dir)
 
     cmd = 'git clone '
-    if 'depth' in conf and conf['depth'] > 0:
-        cmd += '--depth {} '.format(conf['depth'])
-    cmd += conf['origin']
-    ret = subprocess.call(cmd, shell=True)
-    if ret != 0:
-        raise Exception("Bad return code from git clone")
+    if 'depth' in conf['git'] and conf['git']['depth'] > 0:
+        cmd += '--depth {} '.format(conf['git']['depth'])
+    cmd += conf['git']['origin']
+    subprocess.check_call(cmd, shell=True)
 
     os.chdir(os.path.join(env_dir, 'salt'))
 
-    for key, val in conf['git_config'].items():
+    for key, val in conf['git']['config'].items():
         cmd = 'git config --local {} \'{}\''.format(key, val)
-        ret = subprocess.call(cmd, shell=True)
-        if ret != 0:
-            raise Exception("Bad return code from git config")
+        subprocess.check_call(cmd, shell=True)
 
-    for name, url in conf['remotes'].items():
+    for name, url in conf['git']['remotes'].items():
         ret = subprocess.call(
             'git remote add {} {}'.format(
                 name, url
@@ -76,7 +77,13 @@ def main(config='config.yml'):
 
     os.chdir(env_dir)
 
-    for path in conf['config_files']:
+    cmd = 'virtualenv venv --python={}'.format(conf['python'])
+    subprocess.check_call(cmd, shell=True)
+
+    cmd = 'venv/bin/pip install -e salt'
+    subprocess.check_call(cmd, shell=True)
+
+    for path in conf['files']:
         full_path = os.path.join(env_dir, path)
         dir_path = os.path.dirname(full_path)
         if not os.path.exists(dir_path):
