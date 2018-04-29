@@ -32,11 +32,17 @@ def main(config='config.yml'):
         conf = yaml.safe_load(fp)
 
     # create root environments directory
-    envs_dir = os.path.abspath(conf['envs_dir'])
+    if os.sep in ns.name:
+        path = os.path.abspath(ns.name)
+        name = os.path.basename(path)
+        envs_dir = os.path.dirname(path)
+    else:
+        name = ns.name
+        envs_dir = os.path.abspath(os.getcwd())
     if not os.path.exists(envs_dir):
         os.makedirs(envs_dir)
 
-    env_dir = os.path.join(envs_dir, ns.name)
+    env_dir = os.path.join(envs_dir, name)
     if not os.path.exists(env_dir):
         os.makedirs(env_dir)
 
@@ -51,6 +57,12 @@ def main(config='config.yml'):
         raise Exception("Bad return code from git clone")
 
     os.chdir(os.path.join(env_dir, 'salt'))
+
+    for key, val in conf['git_config']:
+        cmd = 'git config --local {} \'{}\''.format(key, val)
+        ret = subprocess.call(cmd, shell=True)
+        if ret != 0:
+            raise Exception("Bad return code from git config")
 
     for name, url in conf['remotes'].items():
         ret = subprocess.call(
