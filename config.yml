@@ -1,9 +1,37 @@
 ---
 envs_dir: envs
-environments:
-  - name: foo
-    python: python3.5
-    branch: 2018.3
-    origin: git@github.com:dwoz/salt.git
-    remotes:
-      saltstack: git@github.com:saltstack/salt.git
+python: python3.5
+depth: 1
+branch: 2018.3
+origin: git@github.com:dwoz/salt.git
+remotes:
+  saltstack: git@github.com:saltstack/salt.git
+config_files:
+  SaltFile:
+    salt-master:
+      config_dir: etc/salt
+      log_file: var/log/salt-master.log
+    salt-ssh:
+      config_dir: etc/salt
+      ssh_log_file: log/salt.log
+  etc/salt/master:
+    root_dir: ./
+    log_file: var/salt.log
+    file_roots:
+      base:
+        - srv/salt
+    pillar_roots:
+      base:
+        - srv/pillar
+    gpg_keydir: etc/salt/keys
+    ssh_minion_opts:
+      ec2_tags:
+        keyid: ''
+        key: ''
+    ssh_log_file: var/salt.log
+  etc/salt/roster:
+    test:
+      host: 10.10.2.63
+      user: Administrator
+      passwd: ''
+      winrm: True
