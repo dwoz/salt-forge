@@ -54,6 +54,8 @@ def main(config='config.yml'):
     os.chdir(env_dir)
 
     cmd = 'git clone '
+    if 'branch' in conf['git'] and conf['git']['branch'] > 0:
+        cmd += '--branch {} '.format(conf['git']['branch'])
     if 'depth' in conf['git'] and conf['git']['depth'] > 0:
         cmd += '--depth {} '.format(conf['git']['depth'])
     cmd += conf['git']['origin']
@@ -89,7 +91,7 @@ def main(config='config.yml'):
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
         with open(full_path, 'w') as fp:
-            yaml.dump(conf['config_files'][path], fp, default_flow_style=False)
+            yaml.dump(conf['files'][path], fp, default_flow_style=False)
 
 
 if __name__ == '__main__':
