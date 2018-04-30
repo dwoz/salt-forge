@@ -1,14 +1,11 @@
-_activate = lambda x : execfile(x, dict(__file__=x))
-_activate_paths = (
-    'venv/bin/activate_this.py',
-)
-for _path in _activate_paths:
-    try:
-        _activate(_path)
-    except:
-        continue
-    print("Using virtualenv: {}".format(_path))
-    break
+import os
+import bootstrap
+
+_envdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.venv')
+if not os.path.exists(_envdir):
+    bootstrap.create_env(_envdir)
+bootstrap.activate(_envdir)
+
 import os
 import io
 import yaml
@@ -24,11 +21,6 @@ def repo_name(url):
     _, name_with_git = rsplit('/', 1)
     return name_with_git.rsplit('.', 1)[0]
 
-
-def run(cmd):
-    ret = subprocess.call(cmd, shell=True)
-    if ret != 0:
-        raise Exception("Bad return code from git config")
 
 def main(config='config.yml'):
     ns = parser.parse_args()
@@ -92,6 +84,8 @@ def main(config='config.yml'):
             os.makedirs(dir_path)
         with open(full_path, 'w') as fp:
             yaml.dump(conf['files'][path], fp, default_flow_style=False)
+
+
 
 
 if __name__ == '__main__':
