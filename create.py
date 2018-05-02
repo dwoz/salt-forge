@@ -6,6 +6,7 @@ if not os.path.exists(_envdir):
     bootstrap.create_env(_envdir)
 bootstrap.activate(_envdir)
 
+import logging
 import os
 import io
 import yaml
@@ -23,6 +24,7 @@ def repo_name(url):
 
 
 def main(config='config.yml'):
+    logging.basicConfig(level = logging.DEBUG, format="%(asctime)s %(message)s")
     ns = parser.parse_args()
     orig_path = os.getcwd()
     with io.open(config, 'r') as fp:
