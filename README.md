@@ -7,5 +7,5 @@ Salt Forge
 
 - Minimal dependies, python and git. Forge expects you to have python and git
   installed. All other depnencies can be bootstraped by forge itself. Forge
-  won't touch the 'system python', it creates it's own virtual environment for
-  it's depenencies.
+  won't touch the 'system python', it creates an internal virtual environment
+  for the depenencies needed.
