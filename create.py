@@ -14,7 +14,7 @@ import subprocess
 import argparse
 
 
-parser = argparse.ArgumentParser(description='Slat Forge')
+parser = argparse.ArgumentParser(description='Salt Forge - Forge Salt environments at will')
 parser.add_argument('name')
 
 
@@ -30,6 +30,7 @@ def main(config='config.yml'):
     with io.open(config, 'r') as fp:
         conf = yaml.safe_load(fp)
 
+
     # create root environments directory
     if os.sep in ns.name:
         path = os.path.abspath(ns.name)
@@ -44,41 +45,45 @@ def main(config='config.yml'):
     env_dir = os.path.join(envs_dir, name)
     if not os.path.exists(env_dir):
         os.makedirs(env_dir)
-
     os.chdir(env_dir)
 
-    cmd = 'git clone '
-    if 'branch' in conf['git'] and conf['git']['branch'] > 0:
-        cmd += '--branch {} '.format(conf['git']['branch'])
-    if 'depth' in conf['git'] and conf['git']['depth'] > 0:
-        cmd += '--depth {} '.format(conf['git']['depth'])
-    cmd += conf['git']['origin']
-    subprocess.check_call(cmd, shell=True)
 
-    os.chdir(os.path.join(env_dir, 'salt'))
+    # clone and configure git repositories
+    for key, val in conf['git']:
 
-    for key, val in conf['git']['config'].items():
-        cmd = 'git config --local {} \'{}\''.format(key, val)
+        cmd = 'git clone '
+        if 'branch' in val and val['branch'] > 0:
+            cmd += '--branch {} '.format(val['branch'])
+        if 'depth' in val and val['depth'] > 0:
+            cmd += '--depth {} '.format(val['depth'])
+        cmd += conf['git']['origin']
         subprocess.check_call(cmd, shell=True)
 
-    for name, url in conf['git']['remotes'].items():
-        ret = subprocess.call(
-            'git remote add {} {}'.format(
-                name, url
-            ),
-            shell=True
-        )
-        if ret != 0:
-            raise Exception("Bad return code from git remote add")
+        os.chdir(os.path.join(env_dir, key))
+
+        for key, val in val['config'].items():
+            cmd = 'git config --local {} \'{}\''.format(key, val)
+            subprocess.check_call(cmd, shell=True)
+
+        for name, url in val['remotes'].items():
+            ret = subprocess.call(
+                'git remote add {} {}'.format(
+                    name, url
+                ),
+                shell=True
+            )
+            if ret != 0:
+                raise Exception("Bad return code from git remote add")
 
     os.chdir(env_dir)
 
+
+    # Create a virtual environment
     cmd = 'virtualenv venv --python={}'.format(conf['python'])
     subprocess.check_call(cmd, shell=True)
 
-    cmd = 'venv/bin/pip install -e salt'
-    subprocess.check_call(cmd, shell=True)
 
+    # Create a virtual environment
     for path in conf['files']:
         full_path = os.path.join(env_dir, path)
         dir_path = os.path.dirname(full_path)
@@ -88,6 +93,9 @@ def main(config='config.yml'):
             yaml.dump(conf['files'][path], fp, default_flow_style=False)
 
 
+    # Run commands
+    for cmd in conf['commands']
+        subprocess.check_call(cmd, shell=True)
 
 
 if __name__ == '__main__':
