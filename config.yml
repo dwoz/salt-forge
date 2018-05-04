@@ -2,27 +2,27 @@
 python: python3
 git:
   salt:
-      depth: 1
-      branch: 2018.3
-      origin: git@github.com:dwoz/salt.git
-      remotes:
-        saltstack: git@github.com:saltstack/salt.git
-      config:
-        user.email: dwozniak@saltstack.com
-        user.name: Daniel A. Wozniak
-        gpg.program: gpg
-        commit.signgpg: true
+    depth: 1
+    branch: 2018.3
+    origin: git@github.com:dwoz/salt.git
+    remotes:
+      saltstack: git@github.com:saltstack/salt.git
+    config:
+      user.email: dwozniak@saltstack.com
+      user.name: Daniel A. Wozniak
+      gpg.program: gpg
+      commit.signgpg: true
   srv/salt:
-      depth: 1
-      branch: 2018.3
-      origin: git@github.com:dwoz/salt-jenkins.git
-      remotes:
-        saltstack: git@github.com:saltstack/salt-jenkins.git
-      config:
-        user.email: dwozniak@saltstack.com
-        user.name: Daniel A. Wozniak
-        gpg.program: gpg
-        commit.signgpg: true
+    depth: 1
+    branch: 2018.3
+    origin: git@github.com:dwoz/salt-jenkins.git
+    remotes:
+      saltstack: git@github.com:saltstack/salt-jenkins.git
+    config:
+      user.email: dwozniak@saltstack.com
+      user.name: Daniel A. Wozniak
+      gpg.program: gpg
+      commit.signgpg: true
 files:
   Saltfile:
     salt-master:
