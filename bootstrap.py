@@ -17,11 +17,14 @@ walk = os.path.walk
 if hasattr(os, 'walk'):
     walk = os.walk
 
-def fetch_url(url, out):
+def fetch_url(url, out, verify=True):
     import urllib2
     import ssl
-    context = ssl._create_unverified_context()
-    response = urllib2.urlopen(url, context=context)  # How should i pass authorization details here?
+    if verify:
+        context = ssl.create_default_context()
+    else:
+        context = ssl._create_unverified_context()
+    response = urllib2.urlopen(url, context=context)
     with open(out, 'w') as fp:
        fp.write(response.read())
 
