@@ -45,27 +45,32 @@ def main(config='config.yml'):
     env_dir = os.path.join(envs_dir, name)
     if not os.path.exists(env_dir):
         os.makedirs(env_dir)
-    os.chdir(env_dir)
 
 
     # clone and configure git repositories
-    for key, val in conf['git']:
+    for key, git_conf in conf['git'].items():
+        os.chdir(env_dir)
+        git_dir = os.path.join(env_dir, key)
+        if not os.path.exists(os.path.dirname(git_dir)):
+            os.makedirs(os.path.dirname(git_dir))
 
         cmd = 'git clone '
-        if 'branch' in val and val['branch'] > 0:
-            cmd += '--branch {} '.format(val['branch'])
-        if 'depth' in val and val['depth'] > 0:
-            cmd += '--depth {} '.format(val['depth'])
-        cmd += conf['git']['origin']
+        if 'branch' in git_conf and git_conf['branch'] > 0:
+            cmd += '--branch {} '.format(git_conf['branch'])
+        if 'depth' in git_conf and git_conf['depth'] > 0:
+            cmd += '--depth {} '.format(git_conf['depth'])
+        cmd = '{} {} {}'.format(cmd, git_conf['origin'], key)
+
+        print(cmd)
         subprocess.check_call(cmd, shell=True)
 
         os.chdir(os.path.join(env_dir, key))
 
-        for key, val in val['config'].items():
+        for key, val in git_conf['config'].items():
             cmd = 'git config --local {} \'{}\''.format(key, val)
             subprocess.check_call(cmd, shell=True)
 
-        for name, url in val['remotes'].items():
+        for name, url in git_conf['remotes'].items():
             ret = subprocess.call(
                 'git remote add {} {}'.format(
                     name, url
@@ -94,7 +99,7 @@ def main(config='config.yml'):
 
 
     # Run commands
-    for cmd in conf['commands']
+    for cmd in conf['commands']:
         subprocess.check_call(cmd, shell=True)
 
 
