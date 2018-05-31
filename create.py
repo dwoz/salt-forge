@@ -55,7 +55,7 @@ def main(config='config.yml'):
             os.makedirs(os.path.dirname(git_dir))
 
         cmd = 'git clone '
-        if 'branch' in git_conf and git_conf['branch'] > 0:
+        if 'branch' in git_conf:
             cmd += '--branch {} '.format(git_conf['branch'])
         if 'depth' in git_conf and git_conf['depth'] > 0:
             cmd += '--depth {} '.format(git_conf['depth'])
@@ -70,7 +70,7 @@ def main(config='config.yml'):
             cmd = 'git config --local {} \'{}\''.format(key, val)
             subprocess.check_call(cmd, shell=True)
 
-        for name, url in git_conf['remotes'].items():
+        for name, url in git_conf.get('remotes', {}).items():
             ret = subprocess.call(
                 'git remote add {} {}'.format(
                     name, url
@@ -100,6 +100,7 @@ def main(config='config.yml'):
 
     # Run commands
     for cmd in conf['commands']:
+        print("run command: {}".format(cmd))
         subprocess.check_call(cmd, shell=True)
 
 

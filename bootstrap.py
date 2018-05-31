@@ -1,3 +1,15 @@
+'''
+bootenv.py
+
+bootenv is capable of bootstraping a virtual environment even if the python
+being used does not have setuptools or virtualenv installed. If there is no
+setuptools installed in the pythong being used, a recent version of setuptools
+is will be downloaded and used to install virtualenv. This script will not
+install setuptools or virutalenv int the python environment. Instead, any
+dependencies needed for bootstraping are downloaded to directory outside of the
+normal python path and they are imported from this location when needed by
+bootenv.
+'''
 import os
 import distutils
 import subprocess
