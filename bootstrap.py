@@ -11,6 +11,7 @@ normal python path and they are imported from this location when needed by
 bootenv.
 '''
 import os
+import platform
 import distutils
 import subprocess
 import shutil
@@ -25,9 +26,10 @@ REQUIREMENTS = [
     'PyYaml',
 ]
 
-walk = os.path.walk
 if hasattr(os, 'walk'):
     walk = os.walk
+else:
+    walk = os.path.walk
 
 def fetch_url(url, out, verify=True):
     import urllib2
@@ -128,9 +130,13 @@ def prereq():
 
 
 def activate(path):
-    import os
-    activate = os.path.join(path, 'bin', 'activate_this.py')
-    execfile(activate, dict(__file__=activate))
+    import os, platform
+    scripts = 'bin'
+    if platform.system() == 'Windows':
+        scripts = 'Scripts'
+    activate = os.path.join(path, scripts, 'activate_this.py')
+    with open(activate, 'r') as fp:
+        exec(fp.read(), dict(__file__=activate))
 
 
 def create_env(path, requirements=REQUIREMENTS):
@@ -174,7 +180,10 @@ def create_env(path, requirements=REQUIREMENTS):
     reqfile = 'requirements.txt'
     with open(reqfile, 'w') as fp:
         fp.write(os.linesep.join(requirements))
-    pip_path = os.path.join(path, 'bin', 'pip')
+    scripts = 'bin'
+    if platform.system() == 'Windows':
+        scripts = 'Scripts'
+    pip_path = os.path.join(path, scripts, 'pip')
     cmd = '{} install -r {}'.format(pip_path, reqfile)
     subprocess.check_call(cmd, shell=True)
     os.remove(reqfile)

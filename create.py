@@ -7,6 +7,7 @@ if not os.path.exists(_envdir):
 bootstrap.activate(_envdir)
 
 import logging
+import sys
 import os
 import io
 import yaml
@@ -24,7 +25,12 @@ def repo_name(url):
 
 
 def main(config='config.yml'):
+
     logging.basicConfig(level = logging.DEBUG, format="%(asctime)s %(message)s")
+
+    venv_bin = 'virtualenv'
+    if os.path.exists('vendor/virtualenv.exe'):
+        venv_bin = os.path.abspath('vendor/virtualenv.exe')
     ns = parser.parse_args()
     orig_path = os.getcwd()
     with io.open(config, 'r') as fp:
@@ -67,8 +73,14 @@ def main(config='config.yml'):
         os.chdir(os.path.join(env_dir, key))
 
         for key, val in git_conf['config'].items():
-            cmd = 'git config --local {} \'{}\''.format(key, val)
-            subprocess.check_call(cmd, shell=True)
+            cmd = [
+                'git',
+                'config',
+                '--local',
+                '{}'.format(key),
+                '{}'.format(val),
+            ]
+            subprocess.check_call(cmd)
 
         for name, url in git_conf.get('remotes', {}).items():
             ret = subprocess.call(
@@ -84,7 +96,7 @@ def main(config='config.yml'):
 
 
     # Create a virtual environment
-    cmd = 'virtualenv venv --python={}'.format(conf['python'])
+    cmd = '{} venv --python={}'.format(venv_bin, sys.executable)
     subprocess.check_call(cmd, shell=True)
 
 
