@@ -3,12 +3,11 @@ bootenv.py
 
 bootenv is capable of bootstraping a virtual environment even if the python
 being used does not have setuptools or virtualenv installed. If there is no
-setuptools installed in the pythong being used, a recent version of setuptools
-is will be downloaded and used to install virtualenv. This script will not
-install setuptools or virutalenv int the python environment. Instead, any
-dependencies needed for bootstraping are downloaded to directory outside of the
-normal python path and they are imported from this location when needed by
-bootenv.
+setuptools installed, a recent version of setuptools is will be downloaded and
+used to install virtualenv. This script will not install setuptools or
+virutalenv int the python environment. Instead, any dependencies needed for
+bootstraping are downloaded to directory outside of the normal python path and
+they are imported from this location when needed by bootenv.
 '''
 import os
 import platform
@@ -36,6 +35,7 @@ if hasattr(os, 'walk'):
 else:
     walk = os.path.walk
 
+
 def fetch_url(url, out, verify=True):
     if verify:
         context = ssl.create_default_context()
@@ -44,6 +44,7 @@ def fetch_url(url, out, verify=True):
     response = urllib2.urlopen(url, context=context)
     with open(out, 'w') as fp:
        fp.write(response.read())
+
 
 def unzip(zip_path, todir):
     if not os.path.exists(todir):
@@ -54,6 +55,7 @@ def unzip(zip_path, todir):
     for dirname, dirs, files in walk(todir):
         for name in dirs:
             return os.path.join(dirname, name)
+
 
 def update_path(install_dir):
     pthfile = os.path.join(install_dir, 'easy-install.pth')
@@ -117,6 +119,9 @@ def install_vendor(required, force=False):
 
 
 def prereq():
+    '''
+    Ensure prerequsists (pip and virtualenv) are available.
+    '''
     needed = []
     try:
         import virtualenv
@@ -132,6 +137,9 @@ def prereq():
 
 
 def activate(path):
+    '''
+    Activate the provide virutalenv path
+    '''
     import os, platform
     scripts = 'bin'
     if platform.system() == 'Windows':
@@ -163,16 +171,18 @@ def create_env(path, requirements=REQUIREMENTS):
         fp.write(output)
     fp, pathname, desc = imp.find_module(module_name)
     envboot = imp.load_module(module_name, fp, pathname, desc)
-    envboot.create_environment(path,
-                       site_packages=False,
-                       clear=False,
-                       prompt=None,
-                       search_dirs=envboot.file_search_dirs(),
-                       download=True,
-                       no_setuptools=False,
-                       no_pip=False,
-                       no_wheel=False,
-                       symlink=True)
+    envboot.create_environment(
+        path,
+        site_packages=False,
+        clear=False,
+        prompt=None,
+        search_dirs=envboot.file_search_dirs(),
+        download=True,
+        no_setuptools=False,
+        no_pip=False,
+        no_wheel=False,
+        symlink=True,
+    )
     if os.path.exists(module_path):
         os.remove(module_path)
     if os.path.exists(module_path + 'c'):
@@ -191,6 +201,10 @@ def create_env(path, requirements=REQUIREMENTS):
 
 
 def purge_module(name):
+    '''
+    remove a package from sys.modules, the given name must be the same name
+    that was provided to python's import mechanism.
+    '''
     pkg = name + '.'
     for modname in sys.modules:
         if modname.startswith(pkg):
@@ -200,6 +214,9 @@ def purge_module(name):
 
 
 def check_output(cmd, env=None, sleep=0.2, timeout=10, expected_return=0):
+    '''
+    Check the output of a subprocess call
+    '''
     proc = subprocess.Popen(cmd, shell=True, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     ret = proc.poll()
     start = time.time()
@@ -230,6 +247,9 @@ def download_to_tmp(
 
 
 def perform_bootstrap():
+    '''
+    Run the bootstrap proccedure
+    '''
     logging.basicConfig(level=logging.DEBUG, message="%(asctime)s %(message)s)")
     logger.info("Fetch temporary setuptools")
     cmd = 'python {} stage1'.format(os.path.abspath(__file__))
