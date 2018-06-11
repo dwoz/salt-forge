@@ -13,11 +13,16 @@ bootenv.
 import os
 import platform
 import distutils
+import imp
 import subprocess
 import shutil
 import sys
 import logging
+import tempfile
 import time
+import urllib2
+import zipfile
+import ssl
 
 
 logger = logging.getLogger(__name__)
@@ -32,8 +37,6 @@ else:
     walk = os.path.walk
 
 def fetch_url(url, out, verify=True):
-    import urllib2
-    import ssl
     if verify:
         context = ssl.create_default_context()
     else:
@@ -43,7 +46,6 @@ def fetch_url(url, out, verify=True):
        fp.write(response.read())
 
 def unzip(zip_path, todir):
-    import zipfile
     if not os.path.exists(todir):
         os.makedirs(todir)
     zip_ref = zipfile.ZipFile(zip_path, 'r')
@@ -141,7 +143,6 @@ def activate(path):
 
 def create_env(path, requirements=REQUIREMENTS):
     prereq()
-    import imp
     try:
         import virtualenv, textwrap
     except ImportError:
@@ -222,7 +223,6 @@ def download_to_tmp(
     '''
     Download setuptools and extract to a temporary directory
     '''
-    import tempfile
     tmpdir = tempfile.mkdtemp(prefix=tmp_prefix)
     tmp_archive = os.path.join(tmpdir, 'setuptools.zip')
     fetch_url(url, tmp_archive)
@@ -230,7 +230,7 @@ def download_to_tmp(
 
 
 def perform_bootstrap():
-    logging.basicConfig(level = logging.DEBUG, message="%(asctime)s %(message)s)")
+    logging.basicConfig(level=logging.DEBUG, message="%(asctime)s %(message)s)")
     logger.info("Fetch temporary setuptools")
     cmd = 'python {} stage1'.format(os.path.abspath(__file__))
     orig_path = os.getcwd()
@@ -249,10 +249,10 @@ def perform_bootstrap():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level = logging.DEBUG, format="%(asctime)s %(message)s")
+    logging.basicConfig(level=logging.DEBUG, format="%(asctime)s %(message)s")
     if len(sys.argv) > 1 and sys.argv[1] == 'stage1':
         sys.dont_write_bytecode  = True
-        print(download_to_tmp())
+        logger.info('Temporary dir is: %s', download_to_tmp())
     elif len(sys.argv) > 1 and sys.argv[1] == 'stage2':
         sys.dont_write_bytecode  = True
         install_vendor(['setuptools'], force=True)

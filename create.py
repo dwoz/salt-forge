@@ -15,6 +15,7 @@ import subprocess
 import argparse
 
 
+logger = logging.getLogger(__name__)
 parser = argparse.ArgumentParser(description='Salt Forge - Forge Salt environments at will')
 parser.add_argument('name')
 
@@ -26,18 +27,18 @@ def repo_name(url):
 
 def main(config='config.yml'):
 
-    logging.basicConfig(level = logging.DEBUG, format="%(asctime)s %(message)s")
+    logging.basicConfig(level=logging.DEBUG, format="%(asctime)s %(message)s")
 
     venv_bin = 'virtualenv'
     if os.path.exists('vendor/virtualenv.exe'):
         venv_bin = os.path.abspath('vendor/virtualenv.exe')
     elif os.path.exists('vendor/virtualenv'):
         venv_bin = os.path.abspath('vendor/virtualenv')
+
     ns = parser.parse_args()
     orig_path = os.getcwd()
     with io.open(config, 'r') as fp:
         conf = yaml.safe_load(fp)
-
 
     # create root environments directory
     if os.sep in ns.name:
@@ -54,7 +55,6 @@ def main(config='config.yml'):
     if not os.path.exists(env_dir):
         os.makedirs(env_dir)
 
-
     # clone and configure git repositories
     for key, git_conf in conf['git'].items():
         os.chdir(env_dir)
@@ -69,7 +69,7 @@ def main(config='config.yml'):
             cmd += '--depth {} '.format(git_conf['depth'])
         cmd = '{} {} {}'.format(cmd, git_conf['origin'], key)
 
-        print(cmd)
+        logger.info('Running command %s', cmd)
         subprocess.check_call(cmd, shell=True)
 
         os.chdir(os.path.join(env_dir, key))
@@ -111,10 +111,12 @@ def main(config='config.yml'):
         with open(full_path, 'w') as fp:
             yaml.dump(conf['files'][path], fp, default_flow_style=False)
 
+    envdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'venv')
+    bootstrap.activate(_envdir)
 
     # Run commands
     for cmd in conf['commands']:
-        print("run command: {}".format(cmd))
+        logger.info("run command: %s".format(cmd))
         subprocess.check_call(cmd, shell=True)
 
 
