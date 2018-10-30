@@ -2,8 +2,16 @@ import os
 import bootstrap
 
 _envdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.venv')
+requirements = [
+    'PyYaml',
+#    '-e git://github.com:saltstack/salt.git@v2018.3.1#egg=salt',
+]
+
 if not os.path.exists(_envdir):
-    bootstrap.create_env(_envdir)
+    bootstrap.create_env(
+        _envdir,
+        requirements=requirements,
+    )
 bootstrap.activate(_envdir)
 
 import logging
@@ -29,6 +37,7 @@ def main(config='config.yml'):
 
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s %(message)s")
 
+    # XXX: Add vendor to path?
     venv_bin = 'virtualenv'
     if os.path.exists('vendor/virtualenv.exe'):
         venv_bin = os.path.abspath('vendor/virtualenv.exe')

@@ -26,9 +26,6 @@ import ssl
 
 logger = logging.getLogger(__name__)
 
-REQUIREMENTS = [
-    'PyYaml',
-]
 
 if hasattr(os, 'walk'):
     walk = os.walk
@@ -149,7 +146,7 @@ def activate(path):
         exec(fp.read(), dict(__file__=activate))
 
 
-def create_env(path, requirements=REQUIREMENTS):
+def create_env(path, requirements=[]):
     prereq()
     try:
         import virtualenv, textwrap

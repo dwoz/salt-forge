@@ -12,6 +12,14 @@ git:
       user.name: Daniel A. Wozniak
       gpg.program: gpg
       commit.signgpg: true
+  saltwinshell:
+    depth: 1
+    origin: git@github.com:dwoz/saltwinshell.git
+    config:
+      user.email: dwozniak@saltstack.com
+      user.name: Daniel A. Wozniak
+      gpg.program: gpg
+      commit.signgpg: true
   srv/salt:
     depth: 1
     branch: 2018.3
@@ -25,18 +33,39 @@ git:
       commit.signgpg: true
 files:
   Saltfile:
+    salt-run:
+      config_dir: etc/salt
+    salt:
+      config_dir: etc/salt
+    salt-call:
+      config_dir: etc/salt
+    salt-cloud:
+      config_dir: etc/salt
     salt-master:
       config_dir: etc/salt
       log_file: var/log/salt-master.log
+    salt-minion:
+      config_dir: etc/salt
+      log_file: var/log/salt-minion.log
     salt-ssh:
       config_dir: etc/salt
-      ssh_log_file: log/salt.log
-  etc/salt/master:
+      ssh_log_file: var/log/salt.log
+    salt-key:
+      config_dir: etc/salt
+  etc/salt/minion:
+    id: minion
     root_dir: ./
-    log_file: var/salt.log
+    log_file: var/minion-log.log
     file_roots:
       base:
         - srv/salt
+    pillar_roots:
+      base:
+        - srv/pillar
+  etc/salt/master:
+    master_id: master
+    root_dir: ./
+    log_file: var/log/salt-master.log
     pillar_roots:
       base:
         - srv/pillar
@@ -46,6 +75,10 @@ files:
         keyid: ''
         key: ''
     ssh_log_file: var/salt.log
+    # requires full path?
+    file_roots:
+      base:
+        - srv/salt
   etc/salt/roster:
     test:
       host: 10.10.2.63
@@ -53,4 +86,8 @@ files:
       passwd: ''
       winrm: True
 commands:
-  - pip install -e salt
+  - venv/bin/pip install tornado==4.5.3
+  - venv/bin/pip install pyzmq==16.0.4
+  - venv/bin/pip install -e salt
+  - venv/bin/pip install cython
+  - venv/bin/pip install -e saltwinshell
