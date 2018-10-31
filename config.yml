@@ -86,6 +86,135 @@ files:
       user: Administrator
       passwd: ''
       winrm: True
+  # Extra kitchen platform config.
+  platforms.yml:
+    platforms:
+    - name: opensuse
+      driver:
+        instance_type: t2.large
+        # spot_price: '0.04'
+        image_search:
+          owner-id: '679593333241'
+          name: openSUSE-Leap-*-*-hvm-ssd-x86_64-*-ami-*
+        tags:
+          Name: kitchen-opensuse-<%= 10.times.map{[('a'..'z').to_a, (0..9).to_a].join[rand(36)]}.join %>
+      transport:
+        username: ec2-user
+      provisioner:
+        salt_bootstrap_options: -UX -p rsync git v<%= version %>
+        salt_bootstrap_url: https://raw.githubusercontent.com/saltstack/salt-bootstrap/develop/bootstrap-salt.sh
+    - name: centos-7
+      driver:
+        tags:
+          Name: kitchen-centos-7-<%= 10.times.map{[('a'..'z').to_a, (0..9).to_a].join[rand(36)]}.join %>
+    - name: centos-6
+      driver:
+        tags:
+          Name: kitchen-centos-6-<%= 10.times.map{[('a'..'z').to_a, (0..9).to_a].join[rand(36)]}.join %>
+      provisioner:
+        salt_bootstrap_options: -P -p rsync -y -x python2.7 -X git v<%= version %> >/dev/null
+    - name: fedora-26
+      driver:
+        tags:
+          Name: kitchen-fedora-26-<%= 10.times.map{[('a'..'z').to_a, (0..9).to_a].join[rand(36)]}.join %>
+      provisioner:
+        salt_bootstrap_options: -X -p rsync git v<%= version %> >/dev/null
+    - name: fedora-27
+      driver:
+        tags:
+          Name: kitchen-fedora-27-<%= 10.times.map{[('a'..'z').to_a, (0..9).to_a].join[rand(36)]}.join %>
+      provisioner:
+        salt_bootstrap_options: -X -p rsync git v<%= version %>
+    - name: ubuntu-17.10
+      driver:
+        tags:
+          Name: kitchen-ubuntu-1710-<%= 10.times.map{[('a'..'z').to_a, (0..9).to_a].join[rand(36)]}.join %>
+    - name: ubuntu-16.04
+      driver:
+        tags:
+          Name: kitchen-ubuntu-1604-<%= 10.times.map{[('a'..'z').to_a, (0..9).to_a].join[rand(36)]}.join %>
+    - name: ubuntu-14.04
+      driver:
+        tags:
+          Name: kitchen-ubuntu-1404-<%= 10.times.map{[('a'..'z').to_a, (0..9).to_a].join[rand(36)]}.join %>
+    - name: debian-8
+      driver:
+        tags:
+          Name: kitchen-debian-8-<%= 10.times.map{[('a'..'z').to_a, (0..9).to_a].join[rand(36)]}.join %>
+        block_device_mappings: null
+    - name: debian-9
+      driver:
+        tags:
+          Name: kitchen-debian-9-<%= 10.times.map{[('a'..'z').to_a, (0..9).to_a].join[rand(36)]}.join %>
+        block_device_mappings: null
+    - name: arch
+      driver:
+        image_search:
+          owner-id: '093273469852'
+          name: arch-linux-hvm-*.x86_64-ebs
+        tags:
+          Name: kitchen-arch-<%= 10.times.map{[('a'..'z').to_a, (0..9).to_a].join[rand(36)]}.join %>
+      transport:
+        username: root
+      provisioner:
+        salt_bootstrap_options: -X -p rsync git v<%= version %> >/dev/null
+    - name: windows-2016
+      driver:
+        # spot_price: '0.04'
+        instance_type: t2.xlarge
+        tags:
+          Name: kitchen-windows-2016-<%= 10.times.map{[('a'..'z').to_a, (0..9).to_a].join[rand(36)]}.join %>
+        retryable_tries: 120
+      provisioner:
+        cache_commands:
+          - find %{sandbox_path}/testing/tests -type f | xargs unix2dos
+        salt_bootstrap_url: https://raw.githubusercontent.com/saltstack/salt-bootstrap/develop/bootstrap-salt.ps1
+        salt_bootstrap_options: -version <%= version %> -runservice false
+        init_environment: |
+          REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v PagingFiles /t REG_MULTI_SZ /d "D:\pagefile.sys 4096 8192" /f
+          winrm set winrm/config/winrs '@{MaxMemoryPerShellMB="5000"}'
+      transport:
+        name: winrm
+      verifier:
+        windows: true
+        verbose: true
+        coverage_xml: "%TEMP%\\coverage.xml"
+        xml: "%TEMP%\\xml-unittests-output\\"
+        save:
+          $env:TEMP/coverage.xml: artifacts/coverage/coverage.xml
+          $env:TEMP/xml-unittests-output/: artifacts/
+          $env:TEMP/salt-runtests.log: artifacts/logs/salt-runtests.log
+          c:/salt/var/log/salt/minion: artifacts/logs/minion
+  # Extra kitchen platform config.
+  driver.yml:
+    driver:
+      name: ec2
+      associate_public_ip: false
+      aws_ssh_key_id: dwoz
+      block_device_mappings:
+      - device_name: /dev/sda1
+        ebs:
+          delete_on_termination: true
+          volume_size: 30
+          volume_type: gp2
+      # instance_type: t2.medium
+      interface: public  # This can be set to "private" if you have everything setup to access it.
+      associate_public_ip: true
+      region: us-west-2
+      require_chef_omnibus: true
+      security_group_ids:
+      # - sg-4d816135
+      - sg-0c869eb4bf694353c
+      # pot_price: 'nill'
+      # subnet_id: subnet-01934e812f7300a97
+      subnet_id: subnet-0255fcff51ec5b3c6
+      tags:
+        created-by: test-kitchen
+    transport:
+      name: rsync
+      ssh_key: ~/.ssh/dwoz.pem
+      timeout: 30
+
 commands:
   - venv/bin/pip install tornado==4.5.3
   - venv/bin/pip install pyzmq==16.0.4
