@@ -54,6 +54,7 @@ files:
       config_dir: etc/salt
   etc/salt/minion:
     id: minion
+    master: localhost
     root_dir: ./
     log_file: var/minion-log.log
     file_roots:
