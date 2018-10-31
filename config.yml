@@ -56,13 +56,7 @@ files:
     id: minion
     master: localhost
     root_dir: ./
-    log_file: var/minion-log.log
-    file_roots:
-      base:
-        - srv/salt
-    pillar_roots:
-      base:
-        - srv/pillar
+    log_file: var/salt/minion.log
   etc/salt/master:
     master_id: master
     root_dir: ./
