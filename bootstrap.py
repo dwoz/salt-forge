@@ -19,7 +19,7 @@ import sys
 import logging
 import tempfile
 import time
-import urllib2
+import urllib
 import zipfile
 import ssl
 
@@ -38,7 +38,7 @@ def fetch_url(url, out, verify=True):
         context = ssl.create_default_context()
     else:
         context = ssl._create_unverified_context()
-    response = urllib2.urlopen(url, context=context)
+    response = urllib.urlopen(url, context=context)
     with open(out, 'w') as fp:
        fp.write(response.read())
 
