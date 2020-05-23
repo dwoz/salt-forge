@@ -3,7 +3,7 @@ python: python3
 git:
   salt:
     depth: 1
-    branch: 2018.3
+    branch: master
     origin: git@github.com:dwoz/salt.git
     remotes:
       saltstack: git@github.com:saltstack/salt.git
@@ -14,7 +14,7 @@ git:
       commit.signgpg: true
   saltwinshell:
     depth: 1
-    origin: git@github.com:dwoz/saltwinshell.git
+    origin: git@gitlab.com:saltstack/enterprise/saltwinshell.git
     config:
       user.email: dwozniak@saltstack.com
       user.name: Daniel A. Wozniak
@@ -210,6 +210,8 @@ files:
       timeout: 30
 
 commands:
+  - sed -i 's@srv\/salt@'$(pwd)'\/srv\/salt@g' etc/salt/master
+  - sed -i 's@srv\/pillar@'$(pwd)'\/srv\/pillar@g' etc/salt/master
   - venv/bin/pip install tornado==4.5.3
   - venv/bin/pip install pyzmq==16.0.4
   - venv/bin/pip install -e salt
