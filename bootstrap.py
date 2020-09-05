@@ -19,9 +19,12 @@ import sys
 import logging
 import tempfile
 import time
-import urllib2
 import zipfile
 import ssl
+try:
+    from urllib.request import urlopen
+except ImportError:
+    from urllib2 import urlopen
 
 
 logger = logging.getLogger(__name__)
@@ -38,7 +41,7 @@ def fetch_url(url, out, verify=True):
         context = ssl.create_default_context()
     else:
         context = ssl._create_unverified_context()
-    response = urllib2.urlopen(url, context=context)
+    response = urlopen(url, context=context)
     with open(out, 'w') as fp:
        fp.write(response.read())
 
