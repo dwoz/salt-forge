@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os
-import bootstrap
+import salt_forge_bootstrap
 
 _envdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.venv')
 requirements = [
@@ -9,11 +9,11 @@ requirements = [
 ]
 
 if not os.path.exists(_envdir):
-    bootstrap.create_env(
+    salt_forge_bootstrap.create_env(
         _envdir,
         requirements=requirements,
     )
-bootstrap.activate(_envdir)
+salt_forge_bootstrap.activate(_envdir)
 
 import logging
 import sys
