@@ -107,7 +107,7 @@ def main(config='config.yml'):
 
         os.chdir(os.path.join(env_dir, key))
 
-        for key, val in git_conf['config'].items():
+        for key, val in git_conf.get('config', {}).items():
             cmd = [
                 'git',
                 'config',
