@@ -122,7 +122,7 @@ def main(config='config.yml'):
             yaml.dump(conf['files'][path], fp, default_flow_style=False)
 
     envdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'venv')
-    bootstrap.activate(_envdir)
+    salt_forge_bootstrap.activate(_envdir)
 
     # Run commands
     for cmd in conf['commands']:

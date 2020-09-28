@@ -69,6 +69,12 @@ def update_path(install_dir):
             else:
                 sys.path.append(os.path.abspath(line))
 
+def split_version_spec(required):
+    for op in ('>=', '<=', '==', '<', '>'):
+        if required.find(op) > -1:
+            pkg, ver = required.split(op)
+            return pkg, op, ver
+    raise Exception("No package version found")
 
 def install_vendor(required, force=False):
     try:
@@ -93,10 +99,14 @@ def install_vendor(required, force=False):
         needed = []
         for name in required:
             try:
-                __import__(name)
+                try:
+                    impname = split_version_spec(name)[0]
+                except:
+                    impname = name
+                __import__(impname)
             except ImportError:
                 needed.append(name)
-        needed = required
+        #needed = required
         if not needed:
             logger.debug("Vendor modules loaded from %s", install_dir)
             return
@@ -115,7 +125,11 @@ def install_vendor(required, force=False):
     e.run()
     update_path(install_dir)
     for name in required:
-        __import__(name)
+        try:
+            impname = split_version_spec(name)[0]
+        except:
+            impname = name
+        __import__(impname)
 
 
 def prereq():
@@ -126,7 +140,7 @@ def prereq():
     try:
         import virtualenv
     except:
-        needed.append('virtualenv')
+        needed.append('virtualenv==15.2.0')
     try:
         import pip
     except:
@@ -151,10 +165,11 @@ def activate(path):
 
 def create_env(path, requirements=[]):
     prereq()
+    sys.path.append(os.getcwd())
     try:
         import virtualenv, textwrap
     except ImportError:
-        import sys
+        #import sys
         sys.stderr.write("virtualenv required.\n")
         sys.stderr.flush()
         sys.exit(1)
@@ -198,6 +213,7 @@ def create_env(path, requirements=[]):
     cmd = '{} install -r {}'.format(pip_path, reqfile)
     subprocess.check_call(cmd, shell=True)
     os.remove(reqfile)
+    sys.path.remove(os.getcwd())
 
 
 def purge_module(name):
