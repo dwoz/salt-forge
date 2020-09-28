@@ -131,7 +131,7 @@ def main(config='config.yml'):
 
 
     # Create a virtual environment
-    cmd = '{} venv --python={}'.format(venv_bin, sys.executable)
+    cmd = '{} venv --python={}'.format(venv_bin, conf.get('python', sys.executable))
     subprocess.check_call(cmd, shell=True)
 
 
