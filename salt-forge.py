@@ -31,6 +31,8 @@ import argparse
 logger = logging.getLogger(__name__)
 parser = argparse.ArgumentParser(description='Salt Forge - Forge Salt environments at will')
 parser.add_argument('name')
+parser.add_argument('--config', '-c', help='Path to config file.')
+
 
 #def get_base_prefix_compat():
 #    return getattr(sys, "base_prefix", None) or getattr(sys, "real_prefix", None) or sys.prefix
@@ -64,8 +66,10 @@ def main(config='config.yml'):
 
     ns = parser.parse_args()
     orig_path = os.getcwd()
-    config_path = find_config(config)
-    print("READ CONFIG PATH {}".format(config_path))
+    if ns.config:
+        config_path = ns.config
+    else:
+        config_path = find_config(config)
     with io.open(config_path, 'r') as fp:
         conf = yaml.safe_load(fp)
 
