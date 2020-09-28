@@ -2,7 +2,11 @@
 import os
 import salt_forge_bootstrap
 
-_envdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.venv')
+user_config_path = os.path.join(os.path.expanduser('~'), '.local', 'salt-forge')
+if not os.path.exists(user_config_path):
+    os.makedirs(user_config_path)
+_envdir = os.path.join(user_config_path, '.venv')
+
 requirements = [
     'PyYaml',
 #    '-e git://github.com:saltstack/salt.git@v2018.3.1#egg=salt',
@@ -28,10 +32,23 @@ logger = logging.getLogger(__name__)
 parser = argparse.ArgumentParser(description='Salt Forge - Forge Salt environments at will')
 parser.add_argument('name')
 
+#def get_base_prefix_compat():
+#    return getattr(sys, "base_prefix", None) or getattr(sys, "real_prefix", None) or sys.prefix
+#
+#def in_virtualenv():
+#    return get_base_prefix_compat() != sys.prefix
 
 def repo_name(url):
     _, name_with_git = rsplit('/', 1)
     return name_with_git.rsplit('.', 1)[0]
+
+
+def find_config(config='config.yml'):
+    for path in ['.', os.path.join(os.path.expanduser('~'), '.local', 'salt-forge')]:
+        check_path = os.path.join(path, config)
+        if os.path.exists(check_path):
+            return check_path
+    raise Exception("Unable to find config")
 
 
 def main(config='config.yml'):
@@ -47,7 +64,9 @@ def main(config='config.yml'):
 
     ns = parser.parse_args()
     orig_path = os.getcwd()
-    with io.open(config, 'r') as fp:
+    config_path = find_config(config)
+    print("READ CONFIG PATH {}".format(config_path))
+    with io.open(config_path, 'r') as fp:
         conf = yaml.safe_load(fp)
 
     # create root environments directory

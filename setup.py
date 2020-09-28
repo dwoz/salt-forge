@@ -1,6 +1,8 @@
 #!/usr/bin/env python
-
+import os.path
 from distutils.core import setup
+
+data_path = os.path.join(os.path.expanduser("~"), '.local', 'salt-forge')
 
 setup(
   name='SaltForge',
@@ -11,4 +13,7 @@ setup(
   url='https://woz.io',
   scripts=['salt-forge.py'],
   py_modules=['salt_forge_bootstrap'],
+  data_files=[
+    (data_path, ['config.yml'])
+  ],
 )
