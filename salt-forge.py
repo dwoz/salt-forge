@@ -53,16 +53,23 @@ def find_config(config='config.yml'):
     raise Exception("Unable to find config")
 
 
+def which(prog):
+    cmd = ["which", prog]
+    ret = subprocess.run(cmd)
+    return ret.exit_code == 0
+
+
 def main(config='config.yml'):
 
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s %(message)s")
 
     # XXX: Add vendor to path?
     venv_bin = 'virtualenv'
-    if os.path.exists('vendor/virtualenv.exe'):
-        venv_bin = os.path.abspath('vendor/virtualenv.exe')
-    elif os.path.exists('vendor/virtualenv'):
-        venv_bin = os.path.abspath('vendor/virtualenv')
+    if not which(venv_bin):
+        if os.path.exists('vendor/virtualenv.exe'):
+            venv_bin = os.path.abspath('vendor/virtualenv.exe')
+        elif os.path.exists('vendor/virtualenv'):
+            venv_bin = os.path.abspath('vendor/virtualenv')
 
     ns = parser.parse_args()
     orig_path = os.getcwd()
