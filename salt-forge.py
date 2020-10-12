@@ -26,6 +26,7 @@ import io
 import yaml
 import subprocess
 import argparse
+import pprint
 
 
 logger = logging.getLogger(__name__)
@@ -135,6 +136,7 @@ def main(config='config.yml'):
                 raise Exception("Bad return code from git remote add")
 
     os.chdir(env_dir)
+    pprint.pprint(conf)
 
 
     # Create a virtual environment
