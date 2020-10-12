@@ -55,8 +55,8 @@ def find_config(config='config.yml'):
 
 def which(prog):
     cmd = ["which", prog]
-    ret = subprocess.run(cmd)
-    return ret.exit_code == 0
+    ret = subprocess.call(cmd)
+    return ret == 0
 
 
 def main(config='config.yml'):
