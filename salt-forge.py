@@ -158,7 +158,7 @@ def main(config='config.yml'):
 
     # Run commands
     for cmd in conf['commands']:
-        logger.info("run command: %s".format(cmd))
+        logger.info("run command: %s", cmd)
         subprocess.check_call(cmd, shell=True)
 
 
