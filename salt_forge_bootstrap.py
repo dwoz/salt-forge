@@ -162,10 +162,7 @@ def activate(path):
     with open(activate, 'r') as fp:
         exec(fp.read(), dict(__file__=activate))
 
-
-def create_env(path, requirements=[]):
-    prereq()
-    sys.path.append(os.getcwd())
+def legacy_create_env(path, requirements={}):
     try:
         import virtualenv, textwrap
     except ImportError:
@@ -203,6 +200,30 @@ def create_env(path, requirements=[]):
     if os.path.exists(module_path + 'c'):
         os.remove(module_path + 'c')
 
+
+def create_env(path, requirements=[]):
+    '''
+    Create a virtual environment and install the provided requirements.
+    '''
+    prereq()
+    sys.path.append(os.getcwd())
+    legacy = False
+    try:
+        from virtualenv import cli_run
+    except ImportError:
+        legacy = True
+    if legacy:
+        legacy_create_env(path, requirements)
+    else:
+        cli_run([path])
+    env_requires(path, requirements)
+
+
+def env_requires(path, requirements):
+    '''
+    Create a requirements file from a list of requirements and then tell pip to
+    install them.
+    '''
     reqfile = 'requirements.txt'
     with open(reqfile, 'w') as fp:
         fp.write(os.linesep.join(requirements))
